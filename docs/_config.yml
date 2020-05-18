@@ -22,7 +22,7 @@ title: Interactive and Visual Environments Project Log
 email: joshuadavidmurr@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   A place to write up and collate the progress and experiments related to the final project for the Interactive and Visual Environments module at CCI in 2020.
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/cci-vis-env" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: joshmurr
 github_username:  joshmurr
