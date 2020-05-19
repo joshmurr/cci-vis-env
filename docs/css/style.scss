@@ -1,0 +1,28 @@
+---
+# this ensures Jekyll reads the file to be transformed into CSS later
+# only Main files contain this front matter, not partials.
+---
+
+@import "nav";
+@import "container";
+@import "gallery";
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after{
+    box-sizing: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 20px;
+    display: inline-flex;
+    width: calc(100% - 40px);
+}
+
+ul {
+    list-style-type: none;
+}

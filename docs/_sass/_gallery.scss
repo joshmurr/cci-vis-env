@@ -1,0 +1,32 @@
+.home {
+    // width: 100%;
+}
+
+.gallery {
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    grid-auto-rows: 1fr;
+}
+.gallery::before {
+    content: '';
+    width: 0;
+    padding-bottom: 100%;
+    grid-row: 1 / 1;
+    grid-column: 1 / 1;
+}
+
+.gallery > *:first-child {
+    grid-row: 1 / 1;
+    grid-column: 1 / 1;
+}
+
+.gallery>.item{
+    background: lightblue;
+}
+
+.gallery > .item > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

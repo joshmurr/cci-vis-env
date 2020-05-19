@@ -4,6 +4,7 @@ title:  "WebGL Boilerplate"
 date:   2020-05-18 09:04:39 +0000
 categories: webgl
 ---
+
 The first milestone (if I can call it that) is really getting my head round WebGL. Writing WebGL code is just about learning the API and knowing when and how to make the right API calls. Getting things in the right order and not making unnecessary calls (`drawXXX()` calls in particular) are vital in making an application which runs smoothly and _quickly_. Speed is the name of the game with this project as I need to get things optimized pretty early on in order to get many particles flying around the screen later down the line.
 
 I have already spent a lot of time sifting through over other peoples lightweight WebGL libraries trying to understand how other people structure WebGL apps. Some great resources are:
@@ -35,7 +36,9 @@ And finally, here is the biggest achievement of the week: Game of Life running o
 
 ![Game of Life on the GPU][GOLGPU]
 
-This was again inspired by [Null Program][GOL Link].
+This was again inspired by [Null Program][GOL Link] and the implementation details were from his blog [here][GOL Link]. This was a breakthrough as it was a bit of pain to integrate into my __GL_BP__ code, but that integration process taught me even more about when to call the right API calls.
+
+There are two shader programs: one which updates the state, and another which renders. This is stored in two textures (one being updated, the other being rendered). To run a shader program a `draw()` call needs to be made, however to update the texture and not render it, WebGL draws to a framebuffer which can be thought of as drawing off screen. Immediately after this the textures are swapped and so now the recently updated texture is run into the rendering program which renders to the default framebuffer (which is the visible viewport) and is thus rendered. So now the previous state is passed into the update program and the loop continues.
 
 <!-- Links  -->
 [1]: http://twgljs.org/
@@ -47,6 +50,6 @@ This was again inspired by [Null Program][GOL Link].
 [GOL Link]: https://nullprogram.com/blog/2014/06/10/
 
 <!-- Images -->
-[1000 Points with Icosahedron]: ../../../../images/GL_BP/1000points.gif
-[100000 Points]: ../../../../images/GL_BP/100000points.gif
-[GOLGPU]: ../../../../images/GL_BP/gol.gif
+[1000 Points with Icosahedron]: {{ site.baseurl }}/assets/images/GL_BP/1000points.gif
+[100000 Points]: {{ site.baseurl }}/assets/images/GL_BP/100000points.gif
+[GOLGPU]: {{ site.baseurl }}/assets/images/GL_BP/gol.gif

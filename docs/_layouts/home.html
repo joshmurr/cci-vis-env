@@ -1,0 +1,13 @@
+---
+layout: default
+title: Josh Murr
+---
+<div class="gallery">
+   {% assign image_files = site.static_files | where: "thumbnail", true %}
+
+   {% for img in image_files %}
+   <div class="item">
+       <img src="{{ site.baseurl }}/{{ img.path | escape }}" alt="{{ img.basename }}"/>
+   </div>
+   {% endfor %}
+</div>
