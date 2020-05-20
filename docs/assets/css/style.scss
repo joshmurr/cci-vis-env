@@ -3,6 +3,12 @@
 # only Main files contain this front matter, not partials.
 ---
 
+{% if jekyll.environment == "development" %}
+    $dev: true;
+{% else %}
+    $dev: false;
+{% endif %}
+
 // Inconsolate VARIABLE
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap');
 // Roboto Light 300 Italic, Regular 400, Bold 700
@@ -33,4 +39,15 @@ body {
 
 ul {
     list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+a:visited {
+    color: black;
 }

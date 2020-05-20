@@ -11,7 +11,7 @@ title: Project Log
 <h2 class="post-list-heading">{{ page.list_title }}</h2>
 {%- endif -%}
 <ul class="post-list">
-    {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+    {%- assign date_format = "%d %b %Y" -%}
     {%- for post in posts -%}
     <li>
         <!-- TITLE -->
@@ -22,12 +22,14 @@ title: Project Log
         </h3>
         
         <div class="meta">
-            <!-- TAGS -->
-            {%- if post.categories -%}
-                {%- for category in post.categories -%}
-                    <span class="post-tags">{{ category }}</span>
-                {%- endfor -%}
-            {%- endif -%}
+            <div class="tags">
+                <!-- TAGS -->
+                {%- if post.categories -%}
+                    {%- for category in post.categories -%}
+                        <span class="post-tag">{{ category }}</span>
+                    {%- endfor -%}
+                {%- endif -%}
+            </div>
 
             <!-- DATE -->
             <span class="post-date">{{ post.date | date: date_format }}</span>
