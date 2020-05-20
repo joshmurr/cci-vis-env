@@ -20,6 +20,7 @@ $roboto: 'Roboto';
 @import "nav";
 @import "container";
 @import "gallery";
+@import "overlay";
 
 html {
     box-sizing: border-box;
@@ -35,6 +36,11 @@ body {
     margin: 20px;
     display: inline-flex;
     width: calc(100% - 40px);
+}
+
+h1, h2, h3, h4, h5, h6{
+    font-family: $inconsolata, monospace;
+    font-weight: initial;
 }
 
 ul {
