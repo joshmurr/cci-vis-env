@@ -14,17 +14,24 @@ title: Project Log
     {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
     {%- for post in posts -%}
     <li>
+        <!-- TITLE -->
         <h3>
             <a class="post-link" href="{{ post.url | relative_url }}">
                 {{ post.title | escape }}
             </a>
         </h3>
-        <span class="post-meta">{{ post.date | date: date_format }}</span>
-        {%- if post.categories -%}
-        {%- for category in post.categories -%}
-        <span class="post-meta">{{ category }}</span>
-        {%- endfor -%}
-        {%- endif -%}
+        
+        <div class="meta">
+            <!-- TAGS -->
+            {%- if post.categories -%}
+                {%- for category in post.categories -%}
+                    <span class="post-tags">{{ category }}</span>
+                {%- endfor -%}
+            {%- endif -%}
+
+            <!-- DATE -->
+            <span class="post-date">{{ post.date | date: date_format }}</span>
+        </div>
     </li>
     {%- endfor -%}
 </ul>
