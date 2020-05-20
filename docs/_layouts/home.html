@@ -6,8 +6,8 @@ title: Josh Murr
    {% assign image_files = site.static_files | where: "thumbnail", true %}
 
    {% for img in image_files %}
-   <div class="item">
-       <img src="{{ site.baseurl }}/{{ img.path | escape }}" alt="{{ img.basename }}"/>
+   <div class="item"
+        style="background-image: url({{ site.baseurl }}/{{ img.path | escape }})">
    </div>
    {% endfor %}
 </div>
