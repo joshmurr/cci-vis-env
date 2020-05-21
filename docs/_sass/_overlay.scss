@@ -5,8 +5,11 @@
     top: 0;
     left: 0;
     background-color: rgba(0,0,0,0.2);
+    font-family: $inconsolata, monospace;
+    font-size: 1.2em;
+    font-weight: 450;
 
-    div {
+    .grid-container {
         z-index: 1;
         width: 600px;
         height: 100%;
@@ -14,21 +17,39 @@
         display: grid;
         justify-items: center;
         align-items: center;
-
-        span {
-            z-index: 4;
-            justify-self: left;
-            background-color: red;
-            cursor: pointer;
+        @if $dev{
+            border: 2px solid red;
         }
 
-        h3 {
-            z-index: 4;
-            background-color: red;
-        }
+        .items-container {
+            width: 600px;
+            height: 600px;
+            padding: 10px;
+            @if $dev{
+                border: 2px solid blue;
+            }
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            // box-shadow: 0 0 10px 20px rgba(0,0,0, 0.3);
 
-        canvas{
-            z-index: 3;
+            #close, #demoTitle {
+                z-index: 4;
+                background-color: #CCF;
+                padding-left: 0.3em;
+                padding-right: 0.3em;
+                border-radius: 8px;
+            }
+
+            #close {
+                justify-self: left;
+                cursor: pointer;
+            }
+
+            canvas{
+                z-index: 3;
+            }
         }
     }
 }

@@ -40,7 +40,7 @@ defaults:
     values:
       thumbnail: true
   - scope:
-      path: "assets/images/placholders"
+      path: "assets/images/_placholders"
     values:
       placholder: true
 

@@ -3,11 +3,10 @@ _site
 .jekyll-cache
 .jekyll-metadata
 vendor
-/assets/images/placeholders/
-/assets/images/thumbnails/
-/assets/js/GL_BP
+./assets/
+._site/asssets/images/placeholders/
 /node_modules/
 package-lock.json
-/lib
-/dist
+./lib
+./dist
 

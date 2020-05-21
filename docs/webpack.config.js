@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
     mode: 'development',
-    entry: './assets/js/overlay.js',
+    entry: './assets/js/gallery.js',
     devtool: 'inline-source-map',
     module: {
         rules: [
