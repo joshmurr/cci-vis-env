@@ -39,21 +39,27 @@
         }
 
         .meta{
-            width: 30%;
-            display: flex;
-            justify-content: space-between;
-            .tags{
-                .post-tag{
-                    @if $dev{
-                        background: lightgreen;
+            display: none;
+        }
+        @media only screen and (min-width: 830px) {
+            .meta{
+                display: block;
+                width: 30%;
+                display: flex;
+                justify-content: space-between;
+                .tags{
+                    .post-tag{
+                        @if $dev{
+                            background: lightgreen;
+                        }
+                        margin-right:5px;
                     }
-                    margin-right:5px;
                 }
-            }
 
-            .post-date{
-                @if $dev{
-                    background: lightblue;
+                .post-date{
+                    @if $dev{
+                        background: lightblue;
+                    }
                 }
             }
         }

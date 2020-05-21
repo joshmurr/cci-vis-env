@@ -37,7 +37,8 @@ function hideOverlay(e){
 
 function main(currentFunction){
     GL = new GL_BP();
-    GL.initTarget(512,512, "overlayCanvas");
+    const dim = window.screen.width < 600 ? 256 : 512;
+    GL.initTarget(dim, dim, "overlayCanvas");
     switch(currentFunction) {
         case 'TenThousandPoints' : {
             GL.initShaderProgram('points', pointsVert, pointsFrag, 'POINTS');

@@ -32,10 +32,18 @@ html {
     margin: 0;
 }
 
-body {
+body{
+    display: flex;
+    flex-direction: column;
     margin: 20px;
-    display: inline-flex;
     width: calc(100% - 40px);
+}
+
+
+@media only screen and (min-width: 400px) {
+    body {
+        flex-direction: row;
+    }
 }
 
 h1, h2, h3, h4, h5, h6{
