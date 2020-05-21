@@ -50,10 +50,15 @@ ul {
 a {
     text-decoration: none;
     color: black;
-    padding-left: 0.2em;
-    padding-right: 0.2em;
 }
 
 a:visited {
     color: black;
 }
+
+code {
+    font-family: $inconsolata, monospace;
+    font-weight: 350;
+    font-size: 0.9em;
+}
+

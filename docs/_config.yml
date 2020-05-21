@@ -40,9 +40,9 @@ defaults:
     values:
       thumbnail: true
   - scope:
-      path: "assets/images/_placholders"
+      path: "assets/images/placeholders"
     values:
-      placholder: true
+      placeholder: true
 
       # Build settings
       # theme: minima
