@@ -26,7 +26,6 @@ function showOverlay(e){
     overlay.style.top = String(window.pageYOffset + "px");
     overlay.classList.toggle("hide", false);
     const currentFunction = e.target.getAttribute('name');
-    demoTitle.innerHTML = currentFunction;
     // console.log(currentFunction);
     main(currentFunction);
 }
@@ -41,6 +40,8 @@ function main(currentFunction){
     GL.initTarget(dim, dim, "overlayCanvas");
     switch(currentFunction) {
         case 'TenThousandPoints' : {
+            demoTitle.innerHTML = currentFunction;
+
             GL.initShaderProgram('points', pointsVert, pointsFrag, 'POINTS');
             GL.initShaderProgram('lines', pointsVert, basicFrag, 'LINES');
             GL.updateGlobalUniforms();
@@ -56,6 +57,8 @@ function main(currentFunction){
             break;
         }
         case 'ColourfulIcosahedron' : {
+            demoTitle.innerHTML = currentFunction;
+
             GL.initShaderProgram('faces', facesVert, facesFrag, 'TRIANGLES');
             GL.updateGlobalUniforms();
             GL.cameraPosition = [0, 0, 5];
@@ -63,6 +66,34 @@ function main(currentFunction){
             const icos = GL.Icosahedron();
             GL.linkProgram('faces', icos);
             icos.rotate = { s:0.001, r:[1, 1, 0]};
+            break;
+        }
+        default : {
+            demoTitle.innerHTML = "Program not found.. Coming soon.";
+
+            console.error("404: GL_BP Program Not Found");
+            GL.initShaderProgram('texture', textureVert, textureFrag, 'TRIANGLES');
+            GL.updateGlobalUniforms();
+            GL.cameraPosition = [0, 0, 5];
+            const r = [255, 0, 0, 255];
+            const w = [255, 255, 255, 255];
+            const four = {
+                program : 'texture',
+                width : 10,
+                height : 5,
+                data : new Uint8Array([
+                    ...w, ...w, ...w, ...r, ...w,...w, ...w, ...r, ...w, ...w,
+                    ...r, ...r, ...r, ...r, ...r,...w, ...r, ...w, ...r, ...w,
+                    ...w, ...r, ...w, ...r, ...w,...w, ...r, ...w, ...r, ...w,
+                    ...w, ...w, ...r, ...r, ...w,...w, ...r, ...w, ...r, ...w,
+                    ...w, ...w, ...w, ...r, ...w,...w, ...w, ...r, ...w, ...w,
+                ]),
+            };
+
+            const cube = GL.Cube('404');
+            cube.texture(four);
+            cube.rotate = { s:-0.002, a:[0.2,0.8,0.5]};
+            GL.linkProgram('texture', cube);
             break;
         }
     }
