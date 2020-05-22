@@ -37,10 +37,11 @@ function hideOverlay(e){
 function main(currentFunction){
     GL = new GL_BP();
     const dim = window.screen.width < 600 ? 256 : 512;
+    const regex = /_/g;
     GL.initTarget(dim, dim, "overlayCanvas");
     switch(currentFunction) {
-        case 'TenThousandPoints' : {
-            demoTitle.innerHTML = currentFunction;
+        case 'Ten_Thousand_Points' : {
+            demoTitle.innerHTML = currentFunction.replace(regex, ' ');
 
             GL.initShaderProgram('points', pointsVert, pointsFrag, 'POINTS');
             GL.initShaderProgram('lines', pointsVert, basicFrag, 'LINES');
@@ -56,8 +57,8 @@ function main(currentFunction){
             uCube.rotate = { s:0.001, r:[0, 1, 1]};
             break;
         }
-        case 'ColourfulIcosahedron' : {
-            demoTitle.innerHTML = currentFunction;
+        case 'Coloured_Vertices' : {
+            demoTitle.innerHTML = currentFunction.replace(regex, ' ');
 
             GL.initShaderProgram('faces', facesVert, facesFrag, 'TRIANGLES');
             GL.updateGlobalUniforms();
@@ -69,7 +70,7 @@ function main(currentFunction){
             break;
         }
         default : {
-            demoTitle.innerHTML = "Program not found.. Coming soon.";
+            demoTitle.innerHTML = `${currentFunction.replace(regex, ' ')} coming soon.`;
 
             console.error("404: GL_BP Program Not Found");
             GL.initShaderProgram('texture', textureVert, textureFrag, 'TRIANGLES');
