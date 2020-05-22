@@ -43,6 +43,10 @@ defaults:
       path: "assets/images/placeholders"
     values:
       placeholder: true
+  - scope:
+      path: "assets/images/proposal"
+    values:
+      proposal: true
 
       # Build settings
       # theme: minima

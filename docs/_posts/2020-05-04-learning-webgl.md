@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "Learning WebGL"
-date:   2020-05-16 09:04:39 +0000
-categories: webgl
+date:   2020-05-04 09:34:39 +0000
+categories: webgl 3D
 ---
 
 ![3D Environment Test]({{ site.baseurl }}/assets/images/3d-env-test.png)

@@ -70,6 +70,7 @@ function main(currentFunction){
             break;
         }
         default : {
+            /* 404 CUBE */
             demoTitle.innerHTML = `${currentFunction.replace(regex, ' ')} coming soon.`;
 
             console.error("404: GL_BP Program Not Found");
@@ -78,7 +79,7 @@ function main(currentFunction){
             GL.cameraPosition = [0, 0, 5];
             const r = [255, 0, 0, 255];
             const w = [255, 255, 255, 255];
-            const four = {
+            const four_zero = {
                 program : 'texture',
                 width : 10,
                 height : 5,
@@ -92,7 +93,7 @@ function main(currentFunction){
             };
 
             const cube = GL.Cube('404');
-            cube.texture(four);
+            cube.texture(four_zero);
             cube.rotate = { s:-0.002, a:[0.2,0.8,0.5]};
             GL.linkProgram('texture', cube);
             break;
