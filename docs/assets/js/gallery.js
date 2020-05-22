@@ -36,7 +36,7 @@ function hideOverlay(e){
 
 function main(currentFunction){
     GL = new GL_BP();
-    const dim = window.screen.width < 600 ? 256 : 512;
+    const dim = window.screen.width < 600 ? window.screen.width-80 : 512;
     const regex = /_/g;
     GL.initTarget(dim, dim, "overlayCanvas");
     switch(currentFunction) {

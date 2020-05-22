@@ -41,7 +41,8 @@
         .meta{
             display: none;
         }
-        @media only screen and (min-width: 830px) {
+        /* HIDE TAGS AND DATE */
+        @media only screen and (min-width: $bigscreen) {
             .meta{
                 display: block;
                 width: 30%;

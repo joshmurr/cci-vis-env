@@ -20,7 +20,7 @@ nav {
         }
     }
 
-    @media only screen and (min-width: 400px) {
+    @media only screen and (min-width: $smallscreen) {
         width: 150px;
     }
 }

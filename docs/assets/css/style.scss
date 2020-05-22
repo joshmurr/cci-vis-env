@@ -16,11 +16,14 @@
 
 $inconsolata: 'Inconsolata';
 $roboto: 'Roboto';
+$smallscreen: 600px;
+$bigscreen: 800px;
 
 @import "nav";
 @import "container";
 @import "gallery";
 @import "overlay";
+
 
 html {
     box-sizing: border-box;
@@ -40,7 +43,7 @@ body{
 }
 
 
-@media only screen and (min-width: 400px) {
+@media only screen and (min-width: $smallscreen) {
     body {
         flex-direction: row;
     }

@@ -5,7 +5,9 @@
   "main": "overlay.js",
   "scripts": {
     "build": "webpack",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "dev"  : "bundle exec jekyll serve",
+    "prod" : "JEKYLL_ENV=prod bundle exec jekyll serve"
   },
   "author": "",
   "license": "ISC",
