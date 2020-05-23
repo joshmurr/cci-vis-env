@@ -1,6 +1,7 @@
 import { mat4, vec3 } from 'gl-matrix';
 import Icosahedron from './geometry/icosahedron.js';
 import RandomPointSphere from './geometry/randomPointSphere.js';
+import PointCloud from './geometry/pointCloud.js';
 import Cube from './geometry/cube.js';
 import Quad from './geometry/quad.js';
 
@@ -134,6 +135,7 @@ export default class GL_BP {
     linkProgram(_program, _geometry, _textureName=null){
         this._programs[_program].geometry.push(_geometry);
 
+        const geometryTex = {};
         if(_textureName){
             // Update textures with program location
             // Textures are stored in the GL_BP object
@@ -141,12 +143,9 @@ export default class GL_BP {
             texture.location = this.gl.getUniformLocation(this._programs[_program].shader, texture.uniformName);
 
             // Textures are then passed along to get put into the geometry specific uniforms
-            const geometryTex = {};
             geometryTex[texture.uniformName] = texture;
-            _geometry.linkProgram(this._programs[_program].shader, [geometryTex]);
-        } else {
-            _geometry.linkProgram(this._programs[_program].shader, null);
         }
+        _geometry.linkProgram(this._programs[_program].shader, [geometryTex]);
     }
 
     setGlobalUniforms(_uniforms){
@@ -389,6 +388,10 @@ export default class GL_BP {
 
     RandomPointSphere(numPoints){
         return new RandomPointSphere(this.gl, numPoints);
+    }
+
+    PointCloud(numPoints, emptyData){
+        return new PointCloud(this.gl, numPoints, emptyData);
     }
 
     Icosahedron(){

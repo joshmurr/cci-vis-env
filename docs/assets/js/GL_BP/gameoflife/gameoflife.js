@@ -49,7 +49,7 @@ export default class GameOfLife{
         this._GL.dataTexture(backTex);
 
         this._quad.translate = [1, 0, -3];
-        this._quad.rotate = {s:0.001, a:[0,0,1]};
+        // this._quad.rotate = {s:0.001, a:[0,0,1]};
         this._GL.linkProgram('copy', this._quad, frontTex.name);
         this._GL.linkProgram('gol', this._quad, backTex.name);
         this._quad.addUniform('u_ScaleCopy', this._statesize,  'float2','uniform2fv', 'copy', this._GL.programs['copy'].shader);

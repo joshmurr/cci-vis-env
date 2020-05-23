@@ -1,15 +1,6 @@
 import GL_BP from './GL_BP/GL_BP.js';
 import GameOfLife from './GL_BP/gameoflife/gameoflife.js';
 
-// Load GLSL
-const pointsFrag = require('./glsl/pointsFrag.glsl');
-const pointsVert = require('./glsl/pointsVert.glsl');
-const facesVert = require('./glsl/facesVert.glsl');
-const facesFrag = require('./glsl/facesFrag.glsl');
-const basicFrag = require('./glsl/basicFrag.glsl');
-const textureVert = require('./glsl/textureVert.glsl');
-const textureFrag = require('./glsl/textureFrag.glsl');
-
 const overlay = document.getElementById("overlay");
 const close = document.getElementById("close");
 const demoTitle = document.getElementById("demoTitle");
@@ -43,6 +34,9 @@ function main(currentFunction){
     GL.initTarget(dim, dim, "overlayCanvas");
     switch(currentFunction) {
         case 'Ten_Thousand_Points' : {
+            const basicFrag = require('./glsl/basicFrag.glsl');
+            const pointsFrag = require('./glsl/pointsFrag.glsl');
+            const pointsVert = require('./glsl/pointsVert.glsl');
             demoTitle.innerHTML = currentFunction.replace(regex, ' ');
 
             GL.initShaderProgram('points', pointsVert, pointsFrag, 'POINTS');
@@ -60,6 +54,8 @@ function main(currentFunction){
             break;
         }
         case 'Coloured_Vertices' : {
+            const facesVert = require('./glsl/facesVert.glsl');
+            const facesFrag = require('./glsl/facesFrag.glsl');
             demoTitle.innerHTML = currentFunction.replace(regex, ' ');
 
             GL.initShaderProgram('faces', facesVert, facesFrag, 'TRIANGLES');
@@ -71,6 +67,43 @@ function main(currentFunction){
             icos.rotate = { s:0.001, r:[1, 1, 0]};
             break;
         }
+        case 'Point_Cube' : {
+            const pointCubeFrag = require('./glsl/pointCube/pointsFrag.glsl');
+            const pointCubeVert = require('./glsl/pointCube/pointsVert.glsl');
+            demoTitle.innerHTML = currentFunction.replace(regex, ' ');
+
+            GL.initShaderProgram('points', pointCubeVert, pointCubeFrag, 'POINTS');
+            GL.updateGlobalUniforms();
+            GL.cameraPosition = [0, 0, 2];
+
+            let d = [];
+            for(let i=0; i<8; i++){
+                for(let j=0; j<8; j++){
+                    for(let k=0; k<8; k++){
+                        d.push(
+                            Math.floor((i/8)* 255),
+                            Math.floor((j/8)* 255),
+                            Math.floor((k/8)* 255),
+                            0);
+                    }
+                }
+            }
+
+            const position = {
+                program : 'texture',
+                name : 'redblue',
+                width : 8*8*8,
+                height : 1,
+                data : new Uint8Array(d),
+            };
+
+            GL.dataTexture(position); // Create the texture
+
+            const pointCloud = GL.PointCloud(512, false);
+            pointCloud.rotate = {s:0.0005, a:[0,1,0.6]};
+            GL.linkProgram('points', pointCloud);
+            break;
+        }
         case 'GPU_Game_of_Life' : {
             demoTitle.innerHTML = currentFunction.replace(regex, ' ');
             GL = new GameOfLife(2, "overlayCanvas");
@@ -78,6 +111,8 @@ function main(currentFunction){
             break;
         }
         default : {
+            const textureVert = require('./glsl/textureVert.glsl');
+            const textureFrag = require('./glsl/textureFrag.glsl');
             /* 404 CUBE */
             demoTitle.innerHTML = `${currentFunction.replace(regex, ' ')} coming soon.`;
 
