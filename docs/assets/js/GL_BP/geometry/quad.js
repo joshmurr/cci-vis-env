@@ -23,7 +23,7 @@ export default class Quad extends Geometry {
         ];
     }
 
-    linkProgram(_program){
+    linkProgram(_program, _textures){
         const attributes = {
             i_Position: {
                 buffer: this.gl.createBuffer(),
@@ -51,6 +51,6 @@ export default class Quad extends Geometry {
 
         this._VAO = this.gl.createVertexArray();
         this.setupVAO(attributes);
-        this.linkUniforms(_program);
+        this.linkUniforms(_program, _textures);
     }
 }

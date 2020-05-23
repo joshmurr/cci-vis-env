@@ -7,6 +7,7 @@ import Quad from './geometry/quad.js';
 export default class GL_BP {
     constructor(){
         this._programs = {};
+        this._textures = {};
         this._framebuffers = {};
         this._time = 0.0;
         this._oldTimestamp = 0.0;
@@ -68,6 +69,7 @@ export default class GL_BP {
             shader   : shaderProgram,
             mode     : this.gl[_mode],
             geometry : [],
+            textures : [],
             globalUniforms : {
                 u_ProjectionMatrix : {
                     type        : 'mat4',
@@ -129,9 +131,22 @@ export default class GL_BP {
             this._position, this._target, this._up);
     }
 
-    linkProgram(_program, _geometry){
+    linkProgram(_program, _geometry, _textureName=null){
         this._programs[_program].geometry.push(_geometry);
-        _geometry.linkProgram(this._programs[_program].shader);
+
+        if(_textureName){
+            // Update textures with program location
+            // Textures are stored in the GL_BP object
+            const texture = this._textures[_textureName];
+            texture.location = this.gl.getUniformLocation(this._programs[_program].shader, texture.uniformName);
+
+            // Textures are then passed along to get put into the geometry specific uniforms
+            const geometryTex = {};
+            geometryTex[texture.uniformName] = texture;
+            _geometry.linkProgram(this._programs[_program].shader, [geometryTex]);
+        } else {
+            _geometry.linkProgram(this._programs[_program].shader, null);
+        }
     }
 
     setGlobalUniforms(_uniforms){
@@ -152,8 +167,29 @@ export default class GL_BP {
         this._framebuffers[_name] = this.gl.createFramebuffer();
     }
 
-    draw(now){
-        // this._time = 5 + now * 0.0001;
+    get framebuffers(){
+        return this._framebuffers;
+    }
+
+    framebufferTexture2D(_framebuffer, _texture){
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._framebuffers[_framebuffer]);
+        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0,
+            this.gl.TEXTURE_2D, _texture, 0);
+    }
+
+    get textures(){
+        return this._textures;
+    }
+
+    bindTexture(_texture){
+        this.gl.bindTexture(this.gl.TEXTURE_2D, _texture);
+    }
+
+    bindMainViewport(){
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    }
+
+    draw(now, _selectedProgram=null, _viewPort=[null, null]){
         let deltaTime = 0.0;
         if (this._oldTimestamp != 0) {
             deltaTime = now - this._oldTimestamp;
@@ -164,18 +200,22 @@ export default class GL_BP {
         this._oldTimestamp = now;
         this._time += deltaTime;
 
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        this.gl.viewport(0, 0, 
+            _viewPort[0] || this.gl.canvas.width, 
+            _viewPort[1] || this.gl.canvas.height);
 
-        this.gl.clearColor(0.95, 0.95, 0.95, 1.0);
-        this.gl.clearDepth(1.0);
+        if(!_viewPort[0] && !_viewPort[1]){
+            this.gl.clearColor(0.95, 0.95, 0.95, 1.0);
+            this.gl.clearDepth(1.0);
 
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.gl.enable(this.gl.CULL_FACE);
-        this.gl.enable(this.gl.DEPTH_TEST);
+            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+            this.gl.enable(this.gl.CULL_FACE);
+            this.gl.enable(this.gl.DEPTH_TEST);
+        }
 
         for(const program in this._programs){
             if(this._programs.hasOwnProperty(program)){
-                const program_desc = this._programs[program];
+                const program_desc = _selectedProgram === null ? this._programs[program] : this._programs[_selectedProgram];
 
                 if(program_desc.geometry.length < 1) continue;
 
@@ -187,7 +227,7 @@ export default class GL_BP {
                     this.gl.bindVertexArray(geom.VAO);
 
                     geom.updateModelMatrix(this._time);
-                    geom.setUniforms();
+                    geom.setUniforms(program);
 
                     switch(program_desc.mode){ 
                         case 0 : {
@@ -201,6 +241,7 @@ export default class GL_BP {
                             // LINE_LOOP
                         case 5 :
                             // TRIANGLE_STRIP
+                            // TRIANGLES
                         default : {
                             this.gl.drawElements(program_desc.mode, geom.numIndices, this.gl.UNSIGNED_SHORT, 0);
                         }
@@ -213,6 +254,8 @@ export default class GL_BP {
                 this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
                 this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
             }
+            // If a _selectedProgram is passed, skip the rest
+            if(_selectedProgram) continue;
         }
     }
 
@@ -252,6 +295,60 @@ export default class GL_BP {
         this._textures[_name] = texture;
     }
 
+    dataTexture(_options){
+        // Default options, to be overwritten by _options passed in
+        let options = {
+            program : null,
+            name: null,
+            uniformName: 'u_Texture',
+            level : 0,
+            unit : 0,
+            width : 1,
+            height : 1,
+            data : null,
+            border : 0,
+            internalFormat : 'RGBA8',
+            format : 'RGBA',
+            wrap : 'CLAMP_TO_EDGE',
+            filter : 'NEAREST',
+            type : 'UNSIGNED_BYTE'
+        }
+
+        Object.assign(options, _options);
+
+
+        const texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+        this.gl.texImage2D(this.gl.TEXTURE_2D,
+            0, // Level
+            this.gl[options.internalFormat],
+            options.width,
+            options.height,
+            options.border,
+            this.gl[options.format],
+            this.gl[options.type],
+            options.data
+        );
+
+        // In case of width/height errors use this:
+        // this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl[options.wrap]);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl[options.wrap]);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl[options.filter]);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl[options.filter]);
+
+        // These are basically temporary uniforms to be linked later
+        this._textures[options.name] = {
+            type        : 'texture',
+            uniformType : 'uniform1i',
+            uniformName : options.uniformName,
+            value       : texture,
+            // location    : this.gl.getUniformLocation(this._programs[options.program].shader, 'u_Texture'),
+            location    : null, // Not yet assigned
+            unit        : options.unit
+        }
+    }
 
     randomData(DIMS){
         let d = [];

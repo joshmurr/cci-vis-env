@@ -52,102 +52,88 @@ export default class Geometry {
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
-    linkUniforms(_program){
+    addUniform(_name, _initialValue, _type, _glType, _progName, _program){
+        this._uniforms[_name] = {
+            value       : _initialValue,
+            uniformType : _type,
+            type        : _glType,
+            programName : _progName,
+            location    : this.gl.getUniformLocation(_program, _name)
+        }
+    }
+
+    updateUniform(_uniform, _val){
+        if(this._uniforms.hasOwnProperty(_uniform)){
+            const uniform_desc = this._uniforms[_uniform];
+            uniform_desc.value = _val;
+        }
+    }
+
+
+    linkUniforms(_program, _textures){
         // UNIFORMS
         this._uniforms = {
             u_ModelMatrix : {
                 value    : mat4.create(),
                 type     : 'uniformMatrix4fv',
+                uniformType : 'mat4',
+                programName : null,
                 location : this.gl.getUniformLocation(_program, 'u_ModelMatrix')
             },
         }
         // Update textures with program location
-        for(const tex in this._textures){
-            if(this._textures.hasOwnProperty(tex)){
-                const texture = this._textures[tex];
-                texture.location = this.gl.getUniformLocation(_program, texture.name);
+        // for(const tex in this._textures){
+        // if(this._textures.hasOwnProperty(tex)){
+        // const texture = this._textures[tex];
+        // texture.location = this.gl.getUniformLocation(_program, texture.name);
+        // }
+        // }
+        // Add textures into uniforms
+        if(_textures){
+            for(const tex of _textures){
+                Object.assign(this._uniforms, tex);
             }
         }
-        // Add textures into uniforms
-        Object.assign(this._uniforms, this._textures);
+
+        // Object.assign(this._uniforms, this._textures);
     }
 
-    setUniforms(){
+    setUniforms(_programName=null){
         for(const uniform in this._uniforms){
             if(this._uniforms.hasOwnProperty(uniform)){
                 const uniform_desc = this._uniforms[uniform];
-                if(uniform_desc.type == 'texture'){
-                    this.gl.activeTexture(this.gl.TEXTURE0 + uniform_desc.unit);
-                    this.gl.bindTexture(this.gl.TEXTURE_2D, uniform_desc.value);
-                    this.gl.uniform1i(uniform_desc.location, 0);
-                } else {
-                    this.gl[uniform_desc.type](
-                        uniform_desc.location,
-                        false,
-                        uniform_desc.value,
-                    );
+                // If a specific program is passed and does not match the program
+                // in the uniform, skip it.
+                if(uniform_desc.programName && _programName &&  _programName!==uniform_desc.programName) continue;
+                switch(uniform_desc.type){
+                    case 'texture' : {
+                        // If there is only one texture, all of this is implied
+                        // and therefore technically unnecessary
+                        this.gl.activeTexture(this.gl.TEXTURE0 + uniform_desc.unit);
+                        // this.gl.bindTexture(this.gl.TEXTURE_2D, uniform_desc.value);
+                        this.gl.uniform1i(uniform_desc.location, 0);
+                        break;
+                    }
+                    case 'uniform2fv' : {
+                        this.gl[uniform_desc.type](
+                            uniform_desc.location,
+                            uniform_desc.value,
+                        );
+                        break;
+                    }
+                    default : {
+                        // Matrix
+                        this.gl[uniform_desc.type](
+                            uniform_desc.location,
+                            false, // transpose
+                            uniform_desc.value,
+                        );
+                    }
                 }
             }
         }
     }
 
-    texture(_options){
-        // Default options, to be overwritten by _options passed in
-        let options = {
-            program : null,
-            name : 'u_Texture',
-            level : 0,
-            unit : 0,
-            width : 1,
-            height : 1,
-            data : null,
-            border : 0,
-            internalFormat : 'RGBA8',
-            format : 'RGBA',
-            wrap : 'CLAMP_TO_EDGE',
-            filter : 'NEAREST',
-            type : 'UNSIGNED_BYTE'
-        }
-
-        Object.assign(options, _options);
-        // Make some data if none exists
-        if(options.data == null){
-            options.width = 1;
-            options.height = 1;
-            options.data = new Uint8Array([0,0,255,255]);
-        }
-
-        const texture = this.gl.createTexture();
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-
-        this.gl.texImage2D(this.gl.TEXTURE_2D,
-            0, // Level
-            this.gl[options.internalFormat],
-            options.width,
-            options.height,
-            options.border,
-            this.gl[options.format],
-            this.gl[options.type],
-            options.data
-        );
-
-        // In case of width/height errors use this:
-        // this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl[options.wrap]);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl[options.wrap]);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl[options.filter]);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl[options.filter]);
-
-        // These are basically temporary uniforms to be linked later
-        this._textures[options.name] = {
-            type        : 'texture',
-            uniformType : 'uniform1i',
-            value       : texture,
-            // location    : this.gl.getUniformLocation(this._programs[options.program].shader, 'u_Texture'),
-            location    : null, // Not yet assigned
-            unit        : options.unit
-        }
-    }
     get VAO(){
         return this._VAO;
     }

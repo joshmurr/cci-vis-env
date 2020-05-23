@@ -1,4 +1,5 @@
 import GL_BP from './GL_BP/GL_BP.js';
+import GameOfLife from './GL_BP/gameoflife/gameoflife.js';
 
 // Load GLSL
 const pointsFrag = require('./glsl/pointsFrag.glsl');
@@ -36,6 +37,7 @@ function hideOverlay(e){
 
 function main(currentFunction){
     GL = new GL_BP();
+    let GOL = false;
     const dim = window.screen.width < 600 ? window.screen.width-80 : 512;
     const regex = /_/g;
     GL.initTarget(dim, dim, "overlayCanvas");
@@ -69,6 +71,12 @@ function main(currentFunction){
             icos.rotate = { s:0.001, r:[1, 1, 0]};
             break;
         }
+        case 'GPU_Game_of_Life' : {
+            demoTitle.innerHTML = currentFunction.replace(regex, ' ');
+            GL = new GameOfLife(2, "overlayCanvas");
+            GOL = true;
+            break;
+        }
         default : {
             /* 404 CUBE */
             demoTitle.innerHTML = `${currentFunction.replace(regex, ' ')} coming soon.`;
@@ -93,15 +101,16 @@ function main(currentFunction){
             };
 
             const cube = GL.Cube('404');
-            cube.texture(four_zero);
+            GL.dataTexture(four_zero);
             cube.rotate = { s:-0.002, a:[0.2,0.8,0.5]};
-            GL.linkProgram('texture', cube);
+            GL.linkProgram('texture', cube, four_zero.name);
             break;
         }
     }
 
     function draw(now) {
-        GL.draw(now);
+        if(GOL) GL.run(now);
+        else GL.draw(now);
         window.requestAnimationFrame(draw);
     }
     window.requestAnimationFrame(draw);
