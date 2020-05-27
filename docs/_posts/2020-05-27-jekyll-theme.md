@@ -11,7 +11,7 @@ The [home page]({{ site.baseurl }}/) has been a great test bed in CSS layouts (i
 
 It's all an ongoing process, and of course the code is online [here](https://github.com/joshmurr/cci-vis-env).
 
-Getting things exposes all the bugs you never knew you had. I've already found many of the WebGL experiments look crap on Chrome but I'm not quite sure why yet. I've also learnt something about blending and [premultiplied alpha](https://limnu.com/webgl-blending-youre-probably-wrong/), which _I think_ is the reason why you can see the ghostly imprint of whatever is behind the WebGL canvas:
+Getting things online exposes all the bugs you never knew you had. I've already found many of the WebGL experiments look crap on Chrome but I'm not quite sure why yet. I've also learnt something about blending and [premultiplied alpha](https://limnu.com/webgl-blending-youre-probably-wrong/), which _I think_ is the reason why you can see the ghostly imprint of whatever is behind the WebGL canvas:
 
 ![Alpha Blending Error]({{ site.baseurl }}/assets/images/alpha_blending.png)
 
