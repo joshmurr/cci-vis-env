@@ -13,7 +13,7 @@ title: Josh Murr
 
    {% for img in image_files %}
    <div class="item"
-        style="background-image: url({{ site.baseurl }}/{{ img.path | escape }})"
+        style="background-image: url({{ site.baseurl }}{{ img.path | escape }})"
         name="{{ img.basename }}"
         >
    </div>
