@@ -21,6 +21,18 @@
             border: 2px solid red;
         }
 
+        #warning {
+            h3 {
+                font-size: smaller;
+            }
+            p{
+                font-size: small;
+            }
+            background-color: #F00;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
 
         .items-container {
             width: 100%;
@@ -55,6 +67,14 @@
 
         @media only screen and (min-width: $bigscreen) {
             width: 600px;
+            #warning {
+                h3 {
+                    font-size: initial;
+                }
+                p{
+                    font-size: initial;
+                }
+            }
 
             .items-container {
                 width: 600px;

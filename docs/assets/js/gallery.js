@@ -1,12 +1,17 @@
 import GL_BP from './GL_BP/prod.bundle.js';
 
 const overlay = document.getElementById("overlay");
+const warning = document.getElementById("warning");
 const close = document.getElementById("close");
 const demoTitle = document.getElementById("demoTitle");
 const galleryItems = document.querySelectorAll(".item");
+let GL, dim;
 
-const dim = window.screen.width < 600 ? window.screen.width-80 : 512;
-let GL;
+
+var isFirefox = typeof InstallTrigger !== 'undefined';
+if(!isFirefox) {
+    warning.classList.toggle("hide", false);
+}
 
 for(const item of galleryItems){
     item.addEventListener("click", showOverlay)
@@ -29,6 +34,7 @@ function hideOverlay(e){
 
 function main(currentFunction){
     const regex = /_/g;
+    dim = window.screen.width < 600 ? window.screen.width-80 : 512;
     demoTitle.innerHTML = currentFunction.replace(regex, ' ');
     GL = new GL_BP();
     GL.initTarget(dim, dim, "overlayCanvas");
