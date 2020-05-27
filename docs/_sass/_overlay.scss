@@ -15,28 +15,17 @@
         height: 100%;
         margin: auto;
         display: grid;
+        grid-gap: 20px;
         justify-items: center;
         align-items: center;
         @if $dev{
             border: 2px solid red;
         }
 
-        #warning {
-            h3 {
-                font-size: smaller;
-            }
-            p{
-                font-size: small;
-            }
-            background-color: #F00;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
 
         .items-container {
             width: 100%;
-            height: 100%;
+            // height: 100%;
             padding: 10px;
             @if $dev{
                 border: 2px solid blue;
@@ -47,7 +36,11 @@
             background-color: rgba(0, 0, 0, 0.3);
             // box-shadow: 0 0 10px 20px rgba(0,0,0, 0.3);
 
-            #close, #demoTitle {
+            * {
+                margin: 10px;
+            }
+
+            #close, #demoTitle, #warning {
                 z-index: 4;
                 background-color: #CCF;
                 padding-left: 0.3em;
@@ -60,6 +53,16 @@
                 cursor: pointer;
             }
 
+            #warning {
+                background-color: #E00;
+                h3 {
+                    font-size: smaller;
+                }
+                p{
+                    font-size: small;
+                }
+            }
+
             canvas{
                 z-index: 3;
             }
@@ -67,18 +70,18 @@
 
         @media only screen and (min-width: $bigscreen) {
             width: 600px;
-            #warning {
-                h3 {
-                    font-size: initial;
-                }
-                p{
-                    font-size: initial;
-                }
-            }
 
             .items-container {
                 width: 600px;
-                height: 600px;
+                // height: 100%;
+                #warning {
+                    h3 {
+                        font-size: initial;
+                    }
+                    p{
+                        font-size: initial;
+                    }
+                }
             }
         }
     }
