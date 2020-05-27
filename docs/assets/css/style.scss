@@ -14,8 +14,19 @@
 // Roboto Light 300 Italic, Regular 400, Bold 700
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,300&display=swap');
 
+@font-face {
+    font-family: APL333;
+    src: url("{{ site.baseurl }}/assets/fonts/APL333.ttf");
+}
+// @font-face {
+    // font-family: APL385;
+    // src: url("{{ site.baseurl }}/assets/fonts/APL385.ttf");
+// }
+
 $inconsolata: 'Inconsolata';
 $roboto: 'Roboto';
+$apl: 'APL333';
+// $aplmono: 'APL385';
 $smallscreen: 600px;
 $bigscreen: 800px;
 
@@ -50,7 +61,7 @@ body{
 }
 
 h1, h2, h3, h4, h5, h6{
-    font-family: $inconsolata, monospace;
+    font-family: $apl, $inconsolata, monospace;
     font-weight: initial;
 }
 
