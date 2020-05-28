@@ -15,14 +15,14 @@
     pre {
         margin-left: 3rem;
         margin-right: 3rem;
-        // background: #d9ffcf;
+        background: #efefef;
         border-radius: 8px;
         padding: 1em;
 
-        code {
+        // code {
             // No class
-            color: white;
-        }
+            // color: white;
+        // }
     }
 
 
@@ -39,9 +39,9 @@
             border-radius: 8px;
         }
 
-        a:active{
+        // a:active{
             // a link the moment it is clicked
-        }
+        // }
 
         .meta{
             display: none;
