@@ -8,15 +8,21 @@
     p > code {
         padding-left: 0.2em;
         padding-right: 0.2em;
-        background: #d9ffcf;
+        // background: #d9ffcf;
         border-radius: 8px;
     }
 
     pre {
         margin-left: 3rem;
         margin-right: 3rem;
-        background: #d9ffcf;
+        // background: #d9ffcf;
         border-radius: 8px;
+        padding: 1em;
+
+        code {
+            // No class
+            color: white;
+        }
     }
 
 

@@ -87,7 +87,7 @@ DRAW
 ```javascript
 function draw(now) {
 GL.draw(now);
-window.requestAnimationFrame(draw);
+    window.requestAnimationFrame(draw);
 }
 window.requestAnimationFrame(draw);
 ```
