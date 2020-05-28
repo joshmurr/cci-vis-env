@@ -65,6 +65,7 @@ function main(currentFunction){
             break;
         }
         default : {
+            demoTitle.innerHTML = "404: Program Coming Soon";
             fourOhfour();
         }
     }
@@ -382,8 +383,6 @@ function pointCube() {
 // -------------------------------------------------------------------------------
 function fourOhfour(){
     /* 404 CUBE */
-    demoTitle.innerHTML = "404: Program Coming Soon";
-
     const textureVert = require('./glsl/textureVert.glsl');
     const textureFrag = require('./glsl/textureFrag.glsl');
 
