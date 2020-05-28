@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "GL_BP Update"
+title:  "GL_BP Structure + Update"
 date:   2020-05-27 14:00:01 +0000
 categories: webgl
 ---
@@ -131,21 +131,95 @@ The _Game of Life_ program on the [home page][home] does just this. I wont expla
 
 The _Game of Life_ is stored as two states: _update_ and _render_ which are two separate but equally sized textures. The first program performs the calculations as per the texture currently being rendered, and stores this into the update texture via a framebuffer. The framebuffer creates a snapshot of the new state without you seeing, and then passes this into the render program which renders it to screen, which you do see! This whole process is done on the GPU and is blazingly fast.
 
-The _GL_BP_ implementation of this is (now) quite neat. Previous iterations of _GL_BP_ had _Game of Life_ as its own class which was quite messy. Now all we need are the two shader programs, a Quad so that the vertex shader has some vertices and doesn't complain, and the framebuffer parameters relevant to each program; then you just call `GL.draw()`!
+Previous iterations of _GL_BP_ had _Game of Life_ as its own class which was quite messy - now all we need are the two shader programs, a Quad so that the vertex shader has some vertices and doesn't complain, and the framebuffer parameters relevant to each program. The framebuffer parameters are stored in the `program` object and are set as the first operation in the draw loop:
 
-[_I was going to put the code here, you can just see it on Github here._](https://github.com/joshmurr/webgl_boilerplate/blob/master/src/main.js#L10)
+```
+SETUP
+```
+```javascript
+GL.setFramebufferRoutine('update', {
+    bindFramebuffer : 'step',
+    framebufferTexture2D : ['update', 'u_StateUpdate'],
+    bindTexture : ['render', 'u_StateRender'],
+});
+
+GL.setFramebufferRoutine('render', {
+    pre     : {
+        func : 'swapTextures',
+        args : [['update','u_StateUpdate'], ['render','u_StateRender']],
+    },
+    bindFramebuffer : null,
+    bindTexture : ['render', 'u_StateRender'],
+});
+
+GL.framebuffer('step');
+```
+
+These parameters are passed into the `UPDATE` / `DRAW` loop...
+
+```
+UPDATE
+```
+```javascript
+switch(param) {
+    case 'pre' : {
+        // Run the pre-function:
+        this[values.func](...values.args);
+        break;
+    }
+        case 'bindFramebuffer' : {
+        this.gl[param](this.gl.FRAMEBUFFER, this._framebuffers[values]);
+        break;
+    }
+        case 'framebufferTexture2D' : {
+        let [p, t] = values;
+        this.gl[param](
+            this.gl.FRAMEBUFFER,
+            this.gl.COLOR_ATTACHMENT0,
+            this.gl.TEXTURE_2D,
+            this._programs[p].globalUniforms[t].value,// Select the texture
+            0
+        );
+        break;
+    }
+        case 'bindTexture' : {
+        let [p, t] = values;
+        this.gl[param](
+            this.gl.TEXTURE_2D,
+            this._programs[p].globalUniforms[t].value // Select the texture
+        );
+        break;
+    }
+}
+```
+
+This structure will hopefully allow me in future chain these programs together if I so wish, or _inject_ more functionality into the draw loop without having to root around in the WebGL code itself.
+
+[_I was going to put the full code here, but you can just see it on Github if you're curious._](https://github.com/joshmurr/webgl_boilerplate/blob/master/src/main.js#L10)
 
 ### Transform Feedback
 
 As far as I know _transform feedback_ [is a new feature of WebGL 2](https://webgl2fundamentals.org/webgl/lessons/webgl2-whats-new.html), so it's extra exciting for me to get to grips with this. The tutorial which really got me off the ground [is here](https://gpfault.net/posts/webgl2-particles.txt.html) and like [Null Program](https://nullprogram.com/) has been invaluable; I recommend rooting around on the [GPFault](https://gpfault.net/) website for other great posts.
 
-Transform feedback is similar to the process described above, but transform feedback (or __TF__) allows you to extract data from the vertex shader. This is fundamentally different to the process above as the buffers of data in the vertex shader can be thought of as a _stream_ of information; the vertex shader is applied simultaneously across the entire buffer, but any one particular instance of that vertex shader only has access to one vertex at a time (or normal or colour attribute etc.). So whereas the above method is great when you need access to _all_ the data at once, this method is better suited to applications where _each unit of data does not need to reference the rest of the data_. Sooo a good example of this is a [simple] __particle system__!
+Transform feedback is similar to the process described above, but transform feedback (or _TF_) allows you to extract data from the vertex shader. This is fundamentally different to the process above as the buffers of data in the vertex shader can be thought of as a _stream_ of information; the vertex shader is applied simultaneously across the entire buffer, but any one particular instance of that vertex shader only has access to one vertex at a time (or normal or colour attribute etc.). So whereas the above method is great when you need access to _all_ the data at once, this method is better suited to applications where _each unit of data does not need to reference the rest of the data_. Sooo a good example of this is a [simple] __particle system__!
 
-The method described in the [GPFault tutorial](https://gpfault.net/posts/webgl2-particles.txt.html) encodes the position, velocity, life and age information into a single buffer. As __TF__ only works in a vertex shader, all the calulations are done there this time. The data for each particle is updated and then spat out into a _transform feedback buffer_. This buffer is then passed into the next shader program which takes care of the rendering process.
+The method described in the [GPFault tutorial](https://gpfault.net/posts/webgl2-particles.txt.html) encodes the position, velocity, life and age information into a single buffer. As _TF_ only works in a vertex shader, all the calulations are done there this time. The data for each particle is updated and then spat out into a _transform feedback buffer_. This buffer is then passed into the next shader program which takes care of the rendering process.
 
 Conceptually it's very similar to the method above, but each have their use cases. I found that out the hard way after wasting a fair amount of time trying to get _Game of Life_ running using transform feedback before realising that you need _all the data at once_.
 
-The way I have decided to implement this in _GL_BP_ is to create a `step()` function inside the particle system class which handles the __TF__ process. It is a bit more nuanced than the framebuffer approach above, and so it makes sense the particle system to control which buffer and which [Vertex Array Object](https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject) is being read from or written to and when.
+The way I have decided to implement this in _GL_BP_ is to create a `step()` function inside the particle system class which handles the _TF_ process. It is a bit more nuanced than the framebuffer approach above, and so it makes sense the particle system to control which buffer and which [Vertex Array Object](https://developer.mozilla.org/en-US/docs/Web/API/WebGLVertexArrayObject) is being read from or written to and when. However, similarly to the approach above, you simply define your _TF Vrarings_ in the setup stage and this flags to _GL_BP_ that the geometry/model in question _should_ have a `step()` function present to handle the _TF_ process, and the following `draw()` call is skipped (as the fragment shader does nothing so the `draw()` call is unnessecary).
+
+```javascript
+const transformFeedbackVaryings = [
+    "v_Position",
+    "v_Velocity",
+    "v_Age",
+    "v_Life",
+];
+
+GL.initShaderProgram('update', updateVert, updateFrag, transformFeedbackVaryings, null);
+GL.initShaderProgram('render', renderVert, renderFrag, null, 'POINTS');
+```
 
 [_Again, you can see the code for a particle system implemented with GL_BP here. It also creates a `dataTexture` which is just random data used as random seeds for Perlin noise in the update shader._](https://github.com/joshmurr/webgl_boilerplate/blob/master/src/main.js#L161)
 
