@@ -45,7 +45,11 @@ function main(currentFunction){
             break;
         }
         case 'GPU_Game_of_Life' : {
-            golTexture2d(2);
+            golTexture2d(1);
+            break;
+        }
+        case 'Game_of_Life_as_a_Texture' : {
+            golTextureOscillate(4);
             break;
         }
         case 'Point_Cube' : {
@@ -416,6 +420,95 @@ function fourOhfour(){
     });
 
     GL.cameraPosition = [0, 0, 5];
+
+    function draw(now) {
+        GL.draw(now);
+        window.requestAnimationFrame(draw);
+    }
+    window.requestAnimationFrame(draw);
+}
+// -------------------------------------------------------------------------------
+
+// GOL AS TEXTURE ----------------------------------------------------------------
+function golTextureOscillate(_scale){
+    const updateVert = require('./glsl/gameoflifeAsTexture/updateVert.glsl');
+    const renderVert = require('./glsl/gameoflifeAsTexture/renderVert.glsl');
+    const updateFrag = require('./glsl/gameoflifeAsTexture/golFrag.glsl');
+    const renderFrag = require('./glsl/gameoflifeAsTexture/copyFrag.glsl');
+
+    const GOL = {
+        viewsize : [dim, dim],
+        statesize: [dim/_scale, dim/_scale],
+    };
+
+    GL.initShaderProgram('update', updateVert, updateFrag, null, 'TRIANGLES');
+    GL.initShaderProgram('render', renderVert, renderFrag, null, 'TRIANGLES');
+
+    GL.setDrawParams('update', {
+        viewport       : [0, 0, GOL.statesize[0], GOL.statesize[1]],
+    });
+
+    GL.setFramebufferRoutine('update', {
+        bindFramebuffer : 'step',
+        framebufferTexture2D : ['update', 'u_StateUpdate'],
+        bindTexture : ['render', 'u_StateRender'],
+    });
+
+    GL.setFramebufferRoutine('render', {
+        pre     : {
+            func : 'swapTextures',
+            args : [['update','u_StateUpdate'], ['render','u_StateRender']],
+        },
+        bindFramebuffer : null,
+        bindTexture : ['render', 'u_StateRender'],
+    });
+
+    GL.framebuffer('step');
+
+    let d = [];
+    for(let i=0, size = GOL.statesize[0]*GOL.statesize[1]; i<size; i++){
+        const state = Math.random() < 0.5 ? 255 : 0
+        d.push(state, state, state, 0.0);
+    }
+
+    let d8 = new Uint8Array(d);
+
+    GL.dataTexture('update', {
+        name : 'u_StateUpdate',
+        width : GOL.statesize[0],
+        height : GOL.statesize[1],
+        wrap : 'REPEAT',
+        data           : d8
+    });
+
+    GL.dataTexture('render', {
+        name : 'u_StateRender',
+        width : GOL.statesize[0],
+        height : GOL.statesize[1],
+        wrap : 'REPEAT',
+        data           : d8
+    });
+
+
+    GL.initProgramUniforms('render', [ 'u_ViewMatrix', 'u_ProjectionMatrix' ]);
+
+    GL.addProgramUniform('render', {
+        name : 'u_Scale',
+        type : 'uniform2fv',
+        value : GOL.viewsize,
+    });
+    GL.addProgramUniform('update', {
+        name : 'u_Scale',
+        type : 'uniform2fv',
+        value : GOL.statesize,
+    });
+
+    const GameOfLife = GL.Quad(['update', 'render']);
+    GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
+
+    GameOfLife.translate = [0, 0, -1.5]; 
+    GameOfLife.rotate = {s:0.01, a:[-0.2,1,0.2]};
+    GameOfLife.oscillate = true;
 
     function draw(now) {
         GL.draw(now);
