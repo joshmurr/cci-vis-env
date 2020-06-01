@@ -68,12 +68,88 @@ function main(currentFunction){
             simpleParticles();
             break;
         }
+        case 'Flow_Field' : {
+            flowField();
+            break;
+        }
         default : {
             demoTitle.innerHTML = "404: Program Coming Soon";
             fourOhfour();
         }
     }
 }
+
+// -------------------------------------------------------------------------------
+
+export function flowField(){
+    const updateVert = require('./glsl/flowfield/particle_update_vert.glsl');
+    const updateFrag = require('./glsl/flowfield/passthru_frag.glsl');
+    const renderVert = require('./glsl/flowfield/particle_render_vert.glsl');
+    const renderFrag = require('./glsl/flowfield/particle_render_frag.glsl');
+
+    const transformFeedbackVaryings = [
+        "v_Position",
+        "v_Velocity",
+        "v_Age",
+        "v_Life",
+    ];
+
+    GL.initShaderProgram('update', updateVert, updateFrag, transformFeedbackVaryings, null);
+    GL.initShaderProgram('render', renderVert, renderFrag, null, 'POINTS');
+
+    const SIZE = 12;
+    // 1D TEXTURE - RANDOM DATA
+    let d = [];
+    for(let i=0; i<SIZE; ++i){
+        for(let j=0; j<SIZE; ++j){
+            for(let k=0; k<SIZE; ++k){
+                d.push(
+                    Math.floor((i/SIZE)* 255),
+                    Math.floor((j/SIZE)* 255),
+                    Math.floor((k/SIZE)* 255),
+                );
+            }
+        }
+    }
+    GL.dataTexture('update', {
+        name           :'u_InitialPosition',
+        width          : SIZE*SIZE*SIZE,
+        height         : 1,
+        internalFormat : 'RGB8',
+        format         : 'RGB',
+        unit           : 0,
+        data           : new Uint8Array(d),
+    });
+
+    GL.initProgramUniforms('update', [ 'u_TimeDelta', 'u_TotalTime' ]);
+    GL.initProgramUniforms('render', [ 'u_ProjectionMatrix', 'u_ViewMatrix' ]);
+
+    GL.setDrawParams('render', {
+        clearColor : [0.0, 0.0, 0.0, 1.0],
+        enable     : ['BLEND', 'CULL_FACE', 'DEPTH_TEST'], // if enable is changed, it will override defaults
+        blendFunc  : ['SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA'],
+        depthFunc  : ['LEQUAL']
+    });
+
+    GL.cameraPosition = [0, 2, 3.5];
+
+    const opts = { 
+        numParticles : SIZE*SIZE*SIZE,
+        lifeRange    : [1.01, 10.1],
+        dimensions : 3, 
+        birthRate : 0.6
+    };
+    const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
+    ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
+    GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
+
+    function draw(now) {
+        GL.draw(now);
+        window.requestAnimationFrame(draw);
+    }
+    window.requestAnimationFrame(draw);
+}
+// -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
 function golTexture2d(_scale){
