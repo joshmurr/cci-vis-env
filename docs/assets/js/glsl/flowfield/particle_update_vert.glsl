@@ -61,6 +61,6 @@ void main(){
         v_Position = i_Position + i_Velocity * u_TimeDelta;
         v_Age = i_Age + u_TimeDelta;
         v_Life = i_Life;
-        v_Velocity = i_Velocity + u_Gravity * u_TimeDelta + piFlow(v_Position) * u_TimeDelta;
+        v_Velocity = i_Velocity + u_Gravity * u_TimeDelta + piFlow(v_Position) * 0.02 * u_TimeDelta;
     }
 }
