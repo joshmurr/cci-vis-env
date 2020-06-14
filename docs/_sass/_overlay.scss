@@ -34,6 +34,7 @@
             justify-items: center;
             align-items: center;
             background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
             // box-shadow: 0 0 10px 20px rgba(0,0,0, 0.3);
 
             * {
@@ -42,13 +43,14 @@
 
             #close, #demoTitle, #warning {
                 z-index: 4;
-                background-color: #CCF;
+                background-color: #CFC;
                 padding-left: 0.3em;
                 padding-right: 0.3em;
                 border-radius: 8px;
             }
 
             #close {
+                background-color: #FCC;
                 justify-self: left;
                 cursor: pointer;
             }

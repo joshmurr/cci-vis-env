@@ -7,11 +7,10 @@ const demoTitle = document.getElementById("demoTitle");
 const galleryItems = document.querySelectorAll(".item");
 let GL, dim;
 
-
-var isFirefox = typeof InstallTrigger !== 'undefined';
-if(!isFirefox) {
-    warning.classList.toggle("hide", false);
-}
+// var isFirefox = typeof InstallTrigger !== 'undefined';
+// if(!isFirefox) {
+    // warning.classList.toggle("hide", false);
+// }
 
 for(const item of galleryItems){
     item.addEventListener("click", showOverlay)
@@ -37,7 +36,7 @@ function main(currentFunction){
     dim = window.screen.width < 600 ? window.screen.width-80 : 512;
     demoTitle.innerHTML = currentFunction.replace(regex, ' ');
     GL = new GL_BP();
-    GL.initTarget(dim, dim, "overlayCanvas");
+    GL.initTarget(dim, dim, "overlayCanvas", true);
 
     switch(currentFunction) {
         case 'Ten_Thousand_Points' : {
@@ -72,12 +71,120 @@ function main(currentFunction){
             flowField();
             break;
         }
+        case 'User_Interaction' : {
+            userInteraction();
+            break;
+        }
         default : {
             demoTitle.innerHTML = "404: Program Coming Soon";
             fourOhfour();
         }
     }
 }
+//
+// -------------------------------------------------------------------------------
+export function userInteraction(_GL){
+    const updateVert = require('./glsl/userInteraction/particle_update_vert.glsl');
+    const updateFrag = require('./glsl/userInteraction/passthru_frag.glsl');
+    const renderVert = require('./glsl/userInteraction/particle_render_vert.glsl');
+    const renderFrag = require('./glsl/userInteraction/particle_render_frag.glsl');
+
+    const transformFeedbackVaryings = [
+        "v_Position",
+        "v_Velocity",
+        "v_Age",
+        "v_Life",
+    ];
+
+    GL.initShaderProgram('update', updateVert, updateFrag, transformFeedbackVaryings, null);
+    GL.initShaderProgram('render', renderVert, renderFrag, null, 'POINTS');
+
+    const SIZE = 64;
+    // 1D TEXTURE - Grid Spawning Positions
+    let d = [];
+    for(let i=0; i<SIZE; ++i){
+        let u = (i/SIZE) * (Math.PI);
+        for(let j=0; j<SIZE; ++j){
+            let v = (j/SIZE) * (Math.PI*2);
+            let rand = Math.random()-0.5;
+            let r = 127;
+            let x = Math.sin(u)*Math.cos(v);
+            let y = Math.sin(u)*Math.sin(v);
+            let z = Math.cos(u);
+            x *= rand; y *= rand; z *= rand;
+            x += 1; y += 1; z += 1;
+            x *= r; y *= r; z *= r;
+            d.push(
+                Math.floor(x),
+                Math.floor(y),
+                Math.floor(z)
+            );
+        }
+    }
+    GL.dataTexture('update', {
+        name           :'u_InitialPosition',
+        width          : SIZE,
+        height         : SIZE,
+        internalFormat : 'RGB8',
+        format         : 'RGB',
+        unit           : 0,
+        data           : new Uint8Array(d),
+    });
+
+    d = [];
+    for(let i=0; i<GL.width; ++i){
+        for(let j=0; j<GL.height; ++j){
+            d.push(Math.floor(Math.random()*255));
+            d.push(Math.floor(Math.random()*255));
+            d.push(Math.floor(Math.random()*255));
+        }
+    }
+    GL.dataTexture('update', {
+        name           :'u_NoiseRGB',
+        width          : GL.width,
+        height         : GL.height,
+        internalFormat : 'RGB8',
+        format         : 'RGB',
+        unit           : 1,
+        data           : new Uint8Array(d),
+    });
+
+    GL.initProgramUniforms('update', [ 'u_ProjectionMatrix', 'u_ViewMatrix', 'u_TimeDelta', 'u_TotalTime', 'u_Mouse', 'u_Click' ]);
+    GL.initProgramUniforms('render', [ 'u_ProjectionMatrix', 'u_ViewMatrix' ]);
+
+    GL.setDrawParams('render', {
+        clearColor : [0.0, 0.0, 0.0, 1.0],
+        enable     : ['BLEND'],
+        blendFunc  : ['ONE', 'ZERO'],
+    });
+
+    GL.addProgramUniform('update',{
+        name : 'u_NumParticlesSqRoot',
+        type : 'uniform1i',
+        value: SIZE,
+    });
+
+    GL.cameraPosition = [0, 1, 1.5];
+
+    const opts = {
+        numParticles : SIZE*SIZE,
+        lifeRange    : [1.01, 10.1],
+        dimensions : 3,
+        birthRate : 0.99
+    };
+    const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
+    ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
+    GL.initGeometryUniforms('update', [ 'u_ModelMatrix', 'u_InverseModelMatrix' ]);
+    GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
+
+    function draw(now) {
+        GL.draw(now);
+        window.requestAnimationFrame(draw);
+    }
+    window.requestAnimationFrame(draw);
+}
+
+// -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
 
@@ -131,7 +238,7 @@ export function flowField(){
         depthFunc  : ['LEQUAL']
     });
 
-    GL.cameraPosition = [0, 2, 3.5];
+    GL.cameraPosition = [0, 1.5, 2.8];
 
     const opts = { 
         numParticles : SIZE*SIZE*SIZE,
@@ -272,9 +379,8 @@ function particles3D(){
 
     GL.setDrawParams('render', {
         clearColor : [0.0, 0.0, 0.0, 1.0],
-        enable     : ['BLEND', 'CULL_FACE', 'DEPTH_TEST'], // if enable is changed, it will override defaults
+        enable     : ['BLEND'], // if enable is changed, it will override defaults
         blendFunc  : ['SRC_ALPHA', 'ONE_MINUS_SRC_ALPHA'],
-        depthFunc  : ['LEQUAL']
     });
 
     GL.cameraPosition = [0, 2, 3.5];
@@ -283,7 +389,7 @@ function particles3D(){
         numParticles : 100000,
         lifeRange    : [1.01, 10.1],
         dimensions : 3, 
-        birthRate : 0.99
+        birthRate : 2
     };
     const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
     ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
