@@ -33,6 +33,8 @@ _UBOs_ allow you to pass a buffer into a shader program as a uniform. This means
 
 A _UBO_ was also used to pass the updated settings from the GUI into the shader.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/RmctX-AE4Tk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## User Interaction
 
 In order to get the click position from the user a simple raycasting technique had to be used. The click position is converted from _screen space_ to _world space_ by inverting the projection and view matrices and casting the ray directly forward ([0,0,-1]) into the world. This is a common technique and [this tutorial helped me implement it](http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-a-physics-library/).
