@@ -7,7 +7,7 @@ categories: webgl
 
 It has been a while since I last wrote anything so this will likely contain a few random additions and changes to _GL_BP_.
 
-### Restructure
+## Restructure
 
 The biggest change is that the `_program` object now holds pretty much everything. The geometry is simply a class which initializes the geometry buffers and attributes in the vertex array object, and now _all_ uniforms are handled by the `_program` object. The default setup is as follows:
 
@@ -44,7 +44,7 @@ GL.addProgramUniform('update',{
 });
 ```
 
-### Uniform Buffer Objects
+## Uniform Buffer Objects
 
 [Uniform Buffer Objects](https://www.khronos.org/registry/webgl/specs/latest/2.0/#3.7.16) (_UBOs_) are another [new feature of WebGL 2](https://webgl2fundamentals.org/webgl/lessons/webgl2-whats-new.html) and proved to be a worthwile implementation in _GL_BP_. _UBOs_ act in a similar way to regular attribute buffers: they are a contigious block of data and you tell the shader program how to divide it up and what is inside the stream. This is done using [_interface blocks_](https://www.khronos.org/opengl/wiki/Interface_Block_%28GLSL%29) in the shader program which look like this:
 
@@ -68,13 +68,13 @@ These are useful as you can update uniforms as a single buffer and thus reduce t
 
 ![Multiple Users GIF]({{ site.baseurl }}/assets/images/multiple_users_OPT.gif)
 
-### Cross-Browser Compatability
+## Cross-Browser Compatability
 
-Turns out it _was_ a silly error in the code which was causing all the bugs in Chrome afterall! What a surprise. I was sending a `i_Velocity` uniform into the render program but never using it, which causes GLSL to read data from the from places in the buffer which was throwing all the data out of whack. It's still interesting that Firefox simply handles that error and gets on with it; I would be interested to know the differences in the Chrome and Firefox engines which means Firefox _can_ handle that but Chrome cannot... Maybe one day.
+Turns out it _was_ a silly error in the code which was causing all the bugs in Chrome afterall! What a surprise. I was sending a uniform into the render program but never using it, which causes GLSL to read data from the wrong places in the buffer. It's still interesting that Firefox simply handles that error and gets on with it; I would be interested to know the differences in the Chrome and Firefox engines which means Firefox _can_ handle that but Chrome cannot... Maybe one day.
 
-This means I can finally remove that silly "You're not using Firefox" warning.
+This means I can finally remove that silly _'You're not using Firefox'_ warning.
 
-### Premultiplied Alpha
+## Premultiplied Alpha
 
 I spoke briefly about [premultiplied alpha](https://limnu.com/webgl-blending-youre-probably-wrong/) in a [previous post]({{ site.baseurll }}/cci-vis-env/web-dev/2020/05/27/jekyll-theme.html). Turns out you can turn it on or off as simply as this:
 

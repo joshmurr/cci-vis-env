@@ -1,12 +1,15 @@
 ---
 layout: post
-title:  "WebGL Particle Systems with Socket.IO"
+title:  "Postmortem: WebGL Particle Systems with Socket.IO"
 date:   2020-05-17 09:04:39 +0000
 categories: webgl socketio
 ---
 
-Some text about nothing in particular.
+![WebGL Particles]({{ site.baseurl }}/assets/images/webgl-particles-socketio.png)
 
-Some text about nothing in particular.
+## [The finished web application is still online and can be seen here.][glitch]
 
-Some text about nothing in particular.
+[Write-up still to come]
+
+<!---->
+[glitch]: https://joshmurr-webgl-particles-socketio.glitch.me/
