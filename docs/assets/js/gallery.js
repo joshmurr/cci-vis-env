@@ -21,7 +21,6 @@ close.addEventListener("click", hideOverlay);
 function showOverlay(e){
     overlay.style.top = String(window.pageYOffset + "px");
     overlay.classList.toggle("hide", false);
-    console.log("showing overlay");
     const currentFunction = e.target.getAttribute('name');
     main(currentFunction);
 }
@@ -75,13 +74,147 @@ function main(currentFunction){
             userInteraction();
             break;
         }
+        case 'CCI_Pride' : {
+            cciPride();
+            break;
+        }
         default : {
             demoTitle.innerHTML = "404: Program Coming Soon";
             fourOhfour();
         }
     }
 }
-//
+
+// -------------------------------------------------------------------------------
+export function cciPride(){
+    const updateVert = require('./glsl/cciPride/updateVert.glsl');
+    const renderVert = require('./glsl/cciPride/renderVert.glsl');
+    const updateFrag = require('./glsl/cciPride/golFrag.glsl');
+    const renderFrag = require('./glsl/cciPride/copyFrag.glsl');
+
+    const resolution = 2;
+
+    const GOL = {
+        viewsize : [512, 512],
+        statesize: [512/resolution, 512/resolution],
+    };
+
+    GL.initShaderProgram('update', updateVert, updateFrag, null, 'TRIANGLES');
+    GL.initShaderProgram('render', renderVert, renderFrag, null, 'TRIANGLES');
+
+    GL.setDrawParams('update', {
+        viewport       : [0, 0, GOL.statesize[0], GOL.statesize[1]],
+    });
+
+    GL.setFramebufferRoutine('update', {
+        bindFramebuffer : 'step',
+        framebufferTexture2D : ['update', 'u_StateUpdate'],
+        bindTexture : ['render', 'u_StateRender'],
+    });
+
+    GL.setFramebufferRoutine('render', {
+        pre     : {
+            func : 'swapTextures',
+            args : [['update','u_StateUpdate'], ['render','u_StateRender']],
+        },
+        bindFramebuffer : null,
+        bindTexture : ['render', 'u_StateRender'],
+    });
+
+    GL.framebuffer('step');
+    // -- INITIAL STATE ------------------------
+    const colours = new Uint8Array([
+         30,  30,  30, 255,
+         76,  54,  46, 255,
+        231,  66,  41, 255,
+        243, 147,  34, 255,
+        255, 196,   0, 255,
+         35, 172, 126, 255,
+         83, 188, 226, 255,
+        136, 135, 192, 255,
+    ]);
+
+    GL.dataTexture('render', {
+        name : 'u_ColorCube',
+        width: 2,
+        height: 2,
+        depth: 2,
+        data: colours,
+    });
+
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.canvas.width = GOL.statesize[0];
+    ctx.canvas.height = GOL.statesize[1];
+    const initColours = [
+        255, 255,   0, 255, // Orange  4
+          0, 255,   0, 255, // Red     3
+        255,   0,   0, 255, // Brown   2
+          0,   0,   0, 255, // Black   1
+        255, 255, 255, 255, // Purple  8
+          0, 255, 255, 255, // Blue    7
+        255,   0, 255, 255, // Green   6
+          0,   0, 255, 255, // Yellow  5
+    ];
+    const dim = GOL.statesize[0]/(initColours.length/4);
+
+    for(let i=0, numCols=initColours.length/4; i<numCols; i++){
+        for(let j=0; j<numCols; j++){
+            let idx = (((i+j))%8)*4;
+            ctx.fillStyle = `rgba(
+               ${initColours[idx]},
+               ${initColours[idx+1]},
+               ${initColours[idx+2]},
+               ${initColours[idx+3]})`;
+            const x=i*dim, y=j*dim;
+            ctx.fillRect(x, y, x+dim, y+dim);
+        }
+    }
+
+    GL.addUniformBuffer('update', {
+        name : 'u_InitColors',
+        data : new Float32Array(initColours),
+    });
+
+    GL.textureFromCanvas('update', {
+        name : 'u_StateUpdate',
+        wrap : 'REPEAT',
+        data : ctx.canvas,
+        unit: 0,
+    });
+    GL.textureFromCanvas('render', {
+        name : 'u_StateRender',
+        wrap : 'REPEAT',
+        data : ctx.canvas,
+        unit: 1,
+    });
+
+    GL.initProgramUniforms('render', [ 'u_ViewMatrix', 'u_ProjectionMatrix' ]);
+
+    GL.addProgramUniform('update', {
+        name : 'u_Scale',
+        type : 'uniform2fv',
+        value : GOL.statesize,
+    });
+    const GameOfLife = GL.Quad(['update', 'render']);
+    GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
+
+    GameOfLife.translate = [0.09, -0.09, 0.5];
+
+    GameOfLife.rotate = {angle:Math.PI/4, axis:[0,0,1]};
+    // document.addEventListener("click", () => {
+        // requestAnimationFrame(draw);
+    // });
+
+    function draw(now) {
+        setTimeout(() => {
+            window.requestAnimationFrame(draw);
+        }, 1000/5);
+        GL.draw(now);
+    };
+    window.requestAnimationFrame(draw);
+}
+// -------------------------------------------------------------------------------
+
 // -------------------------------------------------------------------------------
 export function userInteraction(_GL){
     const updateVert = require('./glsl/userInteraction/particle_update_vert.glsl');
