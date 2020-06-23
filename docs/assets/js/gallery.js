@@ -306,7 +306,7 @@ export function userInteraction(_GL){
         birthRate : 0.99
     };
     const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
-    ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
+    ParticleSystem.rotate = { speed:0.0005, axis:[0,1,0]};
     GL.initGeometryUniforms('update', [ 'u_ModelMatrix', 'u_InverseModelMatrix' ]);
     GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
 
@@ -380,7 +380,7 @@ export function flowField(){
         birthRate : 0.6
     };
     const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
-    ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
+    ParticleSystem.rotate = { speed:0.0005, axis:[0,1,0]};
     GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
 
     function draw(now) {
@@ -525,7 +525,7 @@ function particles3D(){
         birthRate : 2
     };
     const ParticleSystem = GL.ParticleSystem('update', 'render', opts);
-    ParticleSystem.rotate = { s:0.0005, a:[0,1,0]};
+    ParticleSystem.rotate = { speed:0.0005, axis:[0,1,0]};
     GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
 
     function draw(now) {
@@ -598,7 +598,7 @@ function icosahedron() {
     GL.initShaderProgram('faces', facesVert, facesFrag, null, 'TRIANGLES');
 
     const icos = GL.Icosahedron('faces');
-    icos.rotate = {s:0.001, a:[1,1,0]};
+    icos.rotate = {speed:0.001, axis:[1,1,0]};
 
     GL.initProgramUniforms('faces', [
         'u_ProjectionMatrix',
@@ -628,10 +628,10 @@ function pointSphere() {
     GL.setDrawParams('lines', { clear : null });
 
     const points = GL.RandomPointSphere(['points'], 10000);
-    points.rotate = {s:0.001, a:[1,1,0]};
+    points.rotate = {speed:0.001, axis:[1,1,0]};
 
     const cube = GL.Cube(['lines'], 'DEBUG');
-    cube.rotate = {s:0.001, a:[1,1,0]};
+    cube.rotate = {speed:0.001, axis:[1,1,0]};
 
     GL.initProgramUniforms('points', [
         'u_ProjectionMatrix',
@@ -661,7 +661,7 @@ function pointCube() {
     GL.initShaderProgram('points', pointsVert, pointsFrag, null, 'POINTS');
 
     const points = GL.PointCloud(['points'], 1000);
-    points.rotate = {s:-0.0005, a:[0.5,0.8,0.2]};
+    points.rotate = {speed:-0.0005, axis:[0.5,0.8,0.2]};
 
     GL.initProgramUniforms('points', [
         'u_ProjectionMatrix',
@@ -715,7 +715,7 @@ function fourOhfour(){
     ]);
 
     const cube = GL.Cube(['texture'], '404');
-    cube.rotate = { s:-0.002, a:[0.2,0.8,0.5]};
+    cube.rotate = { speed:-0.002, axis:[0.2,0.8,0.5]};
 
     GL.initGeometryUniforms('texture', [ 'u_ModelMatrix' ]);
 
@@ -822,7 +822,7 @@ function golTextureOscillate(_scale){
     GL.initGeometryUniforms('render', [ 'u_ModelMatrix' ]);
 
     GameOfLife.translate = [0, 0, -1.5]; 
-    GameOfLife.rotate = {s:0.01, a:[-0.2,1,0.2]};
+    GameOfLife.rotate = {speed:0.01, axis:[-0.2,1,0.2]};
     GameOfLife.oscillate = true;
 
     function draw(now) {
