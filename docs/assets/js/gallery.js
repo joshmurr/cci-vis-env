@@ -208,7 +208,7 @@ export function cciPride(){
     function draw(now) {
         setTimeout(() => {
             window.requestAnimationFrame(draw);
-        }, 1000/5);
+        }, 1000/4);
         GL.draw(now);
     };
     window.requestAnimationFrame(draw);
